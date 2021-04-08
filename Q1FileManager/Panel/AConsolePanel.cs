@@ -21,14 +21,6 @@ namespace Q1FileManager.View
             MESSAGE
         }
         
-        public enum MessageType
-        {
-            ERROR = ConsoleColor.Red,
-            WARNING = ConsoleColor.Yellow,
-            INFO = ConsoleColor.Blue,
-            SUCCESS = ConsoleColor.Green,
-        }
-        
         /// <summary>
         /// Формирует размеры рамки панели
         /// </summary>
@@ -70,7 +62,8 @@ namespace Q1FileManager.View
         protected void ShowFrame()
         {
             PsCon.PsCon.PrintFrameDoubleLine(_left, _top, _widthPanel, _heightPanel, 
-                ConsoleColor.White, ConsoleColor.Black);
+                (ConsoleColor) ConsoleView.Color.FRAME_FONT, (ConsoleColor) ConsoleView.Color.FRAME_BG
+                );
         }
         
         /// <summary>
@@ -84,15 +77,6 @@ namespace Q1FileManager.View
                 Console.SetCursorPosition(_left, _top + i);
                 Console.Write(space);
             }
-        }
-
-        /// <summary>
-        /// Установка цветов по умл.
-        /// </summary>
-        public void ResetColors()
-        {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.Black;
         }
         
         /// <summary>

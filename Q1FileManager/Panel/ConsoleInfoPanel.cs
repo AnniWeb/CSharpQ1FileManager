@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Q1FileManager.View
 {
@@ -7,7 +9,7 @@ namespace Q1FileManager.View
     {
         private TypeContent _typeContent = TypeContent.MESSAGE;
         private string _msg = String.Empty;
-        private MessageType _typeMsg = MessageType.INFO;
+        private ConsoleView.Color _typeMsg = ConsoleView.Color.MSG_INFO;
         private FileSystemInfo _file;
         
         public ConsoleInfoPanel(int width, int height, int left, int top)
@@ -16,15 +18,20 @@ namespace Q1FileManager.View
         }
         public void Show()
         {
-            this.Clear();
-            PsCon.PsCon.PrintFrameDoubleLine(_left, _top, _widthPanel, _heightPanel, 
-                ConsoleColor.White, ConsoleColor.Black);
+            Console.BackgroundColor = (ConsoleColor) ConsoleView.Color.PANEL_I_BG;
+            Console.ForegroundColor = (ConsoleColor) ConsoleView.Color.PANEL_I_FONT;
+            
+            Clear();
+            ShowFrame();
+            
+            Console.BackgroundColor = (ConsoleColor) ConsoleView.Color.PANEL_I_BG;
+            Console.ForegroundColor = (ConsoleColor) ConsoleView.Color.PANEL_I_FONT;
             
             Console.SetCursorPosition(_left + 1, _top + 1);
             switch (_typeContent)
             {
                 case TypeContent.FILE_INFO:
-                    Console.ForegroundColor = (ConsoleColor) MessageType.INFO;
+                    Console.ForegroundColor = (ConsoleColor) ConsoleView.Color.MSG_INFO;
                     if (_file == null)
                     {
                         SetMsg("Неизвестный файл/папка");
@@ -44,14 +51,38 @@ namespace Q1FileManager.View
                         var fileInfo = new FileInfo(_file.FullName);
                         PrintRow($"Размер: {FormatFileSize(fileInfo.Length)}");
                     }
+
+                    if (_file.Attributes != 0)
+                    {
+                        var attrs = new List<string>();
+                        if ((_file.Attributes & FileAttributes.ReadOnly) != 0)
+                        {
+                            attrs.Add("только для чтения");
+                        }
+                        if ((_file.Attributes & FileAttributes.System) != 0)
+                        {
+                            attrs.Add("системный");
+                        }
+                        if ((_file.Attributes & FileAttributes.Hidden) != 0)
+                        {
+                            attrs.Add("скрытый");
+                        }
+                        if ((_file.Attributes & FileAttributes.Temporary) != 0)
+                        {
+                            attrs.Add("временный");
+                        }
+
+                        if (attrs.Count > 0)
+                        {
+                            PrintRow($"Атрибуты: {attrs.Aggregate((i, j) => i + ", " + j).ToString()}");
+                        }
+                    }
                     break;
                 case TypeContent.MESSAGE:
                     Console.ForegroundColor = (ConsoleColor) _typeMsg;
                     PrintRow(_msg);
                     break;
             }
-            
-            ResetColors();
         }
         
         public void Clear()
@@ -78,7 +109,7 @@ namespace Q1FileManager.View
             Show();
         }
 
-        public void SetMsg(string msg, MessageType type = MessageType.INFO)
+        public void SetMsg(string msg, ConsoleView.Color type = ConsoleView.Color.MSG_INFO)
         {
             _typeContent = TypeContent.MESSAGE;
             _msg = msg;

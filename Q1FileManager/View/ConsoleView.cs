@@ -9,19 +9,53 @@ namespace Q1FileManager.View
         private IInfoPanel _infoPanel;
         private ConsoleFilePanel _leftPanel;
         private ConsoleFilePanel _rightPanel;
+        private ConsoleButtonPanel _btnPanel;
 
+        /// <summary>
+        /// Список цветов для разных ситуаций
+        /// </summary>
+        
+        public enum Color
+        {
+            // Цвета сообщений
+            MSG_ERROR = ConsoleColor.Red,
+            MSG_WARNING = ConsoleColor.Yellow,
+            MSG_INFO = ConsoleColor.White,
+            MSG_SUCCESS = ConsoleColor.Green,
+            
+            // Панели
+            PANEL_I_FONT = ConsoleColor.White,
+            PANEL_I_BG = ConsoleColor.Black,
+            PANEL_F_FONT = ConsoleColor.White,
+            PANEL_F_BG = ConsoleColor.Black,
+            
+            FRAME_BG = ConsoleColor.Black,
+            FRAME_FONT = ConsoleColor.Gray,
+            
+            // Кнопки
+            BTN_BG = ConsoleColor.Black,
+            BTN_FONT = ConsoleColor.White,
+            BTN_ACTIVE_BG = ConsoleColor.White,
+            BTN_ACTIVE_FONT = ConsoleColor.Black,
+            
+            // Файловая система
+            PATH_SELECTED_BG = ConsoleColor.Gray,
+            PATH_UNSELECTED_BG = ConsoleColor.Black,
+            FILE_FONT = ConsoleColor.DarkCyan,
+            DIR_FONT = ConsoleColor.DarkGreen,
+            
+        }
 
         public ConsoleView()
         {
             Console.CursorVisible = false;
             Console.SetWindowSize(120, 41);
             Console.SetBufferSize(120, 41);
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.BackgroundColor = ConsoleColor.Black;
 
             _infoPanel = new ConsoleInfoPanel(120, 10, 0, 0);
             _leftPanel = new ConsoleFilePanel(60, 25, 0, 10);
             _rightPanel = new ConsoleFilePanel(60, 25, 60, 10);
+            _btnPanel = new ConsoleButtonPanel(120, 3, 0, 35);
 
             _leftPanel.Active = true;
             _rightPanel.Active = false;
@@ -31,6 +65,7 @@ namespace Q1FileManager.View
             _infoPanel.Show();
             _leftPanel.Show();
             _rightPanel.Show();
+            _btnPanel.Show();
         }
 
         protected void RefrashCurentInfo()
@@ -60,6 +95,7 @@ namespace Q1FileManager.View
                 try
                 {
                     ConsoleKeyInfo userKey = Console.ReadKey(true);
+                    _btnPanel.SetKey(userKey.Key);
 
                     switch (userKey.Key)
                     {
@@ -101,8 +137,8 @@ namespace Q1FileManager.View
                 }
                 catch (Exception e)
                 {
-                    _infoPanel.SetMsg(e.Message, AConsolePanel.MessageType.ERROR);
-                    throw e;
+                    _infoPanel.SetMsg(e.Message, Color.MSG_ERROR);
+                    // throw e;
                 }
             }
         }

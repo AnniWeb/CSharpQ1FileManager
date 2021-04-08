@@ -4,6 +4,6 @@
     {
         public void SetFile(string path);
         
-        public void SetMsg(string msg, AConsolePanel.MessageType type = AConsolePanel.MessageType.INFO);
+        public void SetMsg(string msg, ConsoleView.Color type = ConsoleView.Color.MSG_INFO);
     }
 }

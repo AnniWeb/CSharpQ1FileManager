@@ -35,8 +35,14 @@ namespace Q1FileManager.View
         
         public void Show()
         {
+            Console.BackgroundColor = (ConsoleColor) ConsoleView.Color.PANEL_F_BG;
+            Console.ForegroundColor = (ConsoleColor) ConsoleView.Color.PANEL_F_FONT;
+            
             Clear();
             ShowFrame();
+            
+            Console.BackgroundColor = (ConsoleColor) ConsoleView.Color.PANEL_F_BG;
+            Console.ForegroundColor = (ConsoleColor) ConsoleView.Color.PANEL_F_FONT;
 
             var offset = _activeFile > 0 ? (_activeFile / _pageCount) * _pageCount : 0;
             var count = 0;
@@ -45,33 +51,20 @@ namespace Q1FileManager.View
             foreach (var path in page)
             {
                 Console.SetCursorPosition(_left + 1, _top + count + 1);
-                if ((path.Attributes & FileAttributes.Directory) != 0)
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkCyan;
-                }
-
-                if (offset + count == _activeFile)
-                {
-                    Console.BackgroundColor = ConsoleColor.DarkGray;
-                }
+                
+                Console.ForegroundColor = (ConsoleColor) ((path.Attributes & FileAttributes.Directory) != 0
+                ? ConsoleView.Color.DIR_FONT : ConsoleView.Color.FILE_FONT);
+                Console.BackgroundColor = (ConsoleColor) (offset + count == _activeFile 
+                    ? ConsoleView.Color.PATH_SELECTED_BG : ConsoleView.Color.PATH_UNSELECTED_BG);
                 
                 int currentCursorTopPosition = Console.CursorTop;
                 int currentCursorLeftPosition = Console.CursorLeft;
-
-                if (path.FullName == _root)
-                {
+                
+                PrintRow(path.FullName == _root ? ".." : $"{path.Name}");
                     
-                    Console.Write("..");
-                }
-                else
-                {
-                    Console.Write($"{path.Name}");
-                }
                 
                 Console.SetCursorPosition(currentCursorLeftPosition + _widthPanel / 2, currentCursorTopPosition);
                 
-                
-                ResetColors();
                 count++;
                 if (count > _pageCount)
                 {
