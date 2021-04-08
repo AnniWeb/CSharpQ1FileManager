@@ -47,7 +47,7 @@ namespace Q1FileManager.View
                 Console.SetCursorPosition(_left + 1, _top + count + 1);
                 if ((path.Attributes & FileAttributes.Directory) != 0)
                 {
-                    Console.ForegroundColor = ConsoleColor.Gray;
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
                 }
 
                 if (offset + count == _activeFile)
@@ -71,14 +71,18 @@ namespace Q1FileManager.View
                 Console.SetCursorPosition(currentCursorLeftPosition + _widthPanel / 2, currentCursorTopPosition);
                 
                 
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.BackgroundColor = ConsoleColor.Black;
+                ResetColors();
                 count++;
                 if (count > _pageCount)
                 {
                     break;
                 }
             }
+        }
+
+        public FileSystemInfo GetCurrentPath()
+        {
+            return _fileList[_activeFile];
         }
 
         public void ChangePath(string path)

@@ -15,6 +15,20 @@ namespace Q1FileManager.View
         protected int _left;
         public int Left { get =>this._left; }
         
+        public enum TypeContent
+        {
+            FILE_INFO,
+            MESSAGE
+        }
+        
+        public enum MessageType
+        {
+            ERROR = ConsoleColor.Red,
+            WARNING = ConsoleColor.Yellow,
+            INFO = ConsoleColor.Blue,
+            SUCCESS = ConsoleColor.Green,
+        }
+        
         /// <summary>
         /// Формирует размеры рамки панели
         /// </summary>
@@ -69,6 +83,29 @@ namespace Q1FileManager.View
                 string space = new String(' ', _widthPanel);
                 Console.SetCursorPosition(_left, _top + i);
                 Console.Write(space);
+            }
+        }
+
+        /// <summary>
+        /// Установка цветов по умл.
+        /// </summary>
+        public void ResetColors()
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = ConsoleColor.Black;
+        }
+        
+        /// <summary>
+        /// Печать строки с переносами
+        /// </summary>
+        /// <param name="text"></param>
+        protected void PrintRow(string text)
+        {
+            int blockLength = _widthPanel - 2;
+            for (int i = 0; i < text.Length; i += blockLength )
+            {
+                Console.Write(text.Substring(i, text.Length - i > blockLength ? blockLength : text.Length - i));
+                Console.SetCursorPosition(_left + 1, Console.CursorTop + 1);
             }
         }
     }
