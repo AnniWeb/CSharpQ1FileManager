@@ -12,14 +12,13 @@ namespace Q1FileManager.View
         public ConsoleButtonPanel(int width, int height, int left, int top)
         {
             initFrame(width, height, left,  top);
-            // _menu.Add(ConsoleKey.F3, "Просмотр");
-            // _menu.Add(ConsoleKey.F4, "Правка");
-            _menu.Add(ConsoleKey.F2, "Смена пути");
-            _menu.Add(ConsoleKey.F5, "Копировать");
-            _menu.Add(ConsoleKey.F6, "Переместить");
-            _menu.Add(ConsoleKey.F7, "Создать дир.");
-            _menu.Add(ConsoleKey.F8, "Переимен.");
-            _menu.Add(ConsoleKey.F9, "Удалить");
+            _menu.Add(ConsoleKey.F2, "Переимен.");
+            _menu.Add(ConsoleKey.F3, "Обновить");
+            _menu.Add(ConsoleKey.F4, "Перейти");
+            _menu.Add(ConsoleKey.F5, "Копир.");
+            _menu.Add(ConsoleKey.F6, "Перемест.");
+            _menu.Add(ConsoleKey.F7, "Новая дир.");
+            _menu.Add(ConsoleKey.F8, "Удалить");
             _menu.Add(ConsoleKey.F10, "Выход");
         }
 

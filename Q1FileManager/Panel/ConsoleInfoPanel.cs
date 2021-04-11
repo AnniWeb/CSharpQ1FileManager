@@ -15,17 +15,14 @@ namespace Q1FileManager.View
         public ConsoleInfoPanel(int width, int height, int left, int top)
         {
             initFrame(width, height, left,  top);
+            _colorBg = (ConsoleColor) ConsoleView.Color.PANEL_I_BG;
+            _colorFont = (ConsoleColor) ConsoleView.Color.PANEL_I_FONT;
         }
         public void Show()
         {
-            Console.BackgroundColor = (ConsoleColor) ConsoleView.Color.PANEL_I_BG;
-            Console.ForegroundColor = (ConsoleColor) ConsoleView.Color.PANEL_I_FONT;
-            
-            Clear();
+            ResetColors();
             ShowFrame();
-            
-            Console.BackgroundColor = (ConsoleColor) ConsoleView.Color.PANEL_I_BG;
-            Console.ForegroundColor = (ConsoleColor) ConsoleView.Color.PANEL_I_FONT;
+            ResetColors();
             
             Console.SetCursorPosition(_left + 1, _top + 1);
             switch (_typeContent)
@@ -83,16 +80,8 @@ namespace Q1FileManager.View
                     PrintRow(_msg);
                     break;
             }
-        }
-        
-        public void Clear()
-        {
-            for (int i = 0; i < _heightPanel; i++)
-            {
-                string space = new String(' ', _widthPanel);
-                Console.SetCursorPosition(_left, _top + i);
-                Console.Write(space);
-            }
+            
+            FillEmpty(1);
         }
 
         public void SetFile(string path)
@@ -112,6 +101,7 @@ namespace Q1FileManager.View
         public void SetMsg(string msg, ConsoleView.Color type = ConsoleView.Color.MSG_INFO)
         {
             _typeContent = TypeContent.MESSAGE;
+            _typeMsg = type;
             _msg = msg;
             Show();
         }

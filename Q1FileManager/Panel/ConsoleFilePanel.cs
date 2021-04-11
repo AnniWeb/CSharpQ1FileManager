@@ -16,7 +16,7 @@ namespace Q1FileManager.View
             get => _active;
             set
             {
-                _activeFile = 0;
+                // _activeFile = 0;
                 _active = value;
             }
         }
@@ -55,7 +55,12 @@ namespace Q1FileManager.View
                 Console.ForegroundColor = (ConsoleColor) ((path.Attributes & FileAttributes.Directory) != 0
                 ? ConsoleView.Color.DIR_FONT : ConsoleView.Color.FILE_FONT);
                 Console.BackgroundColor = (ConsoleColor) (offset + count == _activeFile 
-                    ? ConsoleView.Color.PATH_SELECTED_BG : ConsoleView.Color.PATH_UNSELECTED_BG);
+                    ? (
+                        Active 
+                            ? ConsoleView.Color.PATH_ACTIVE_SELECTED_BG 
+                            : ConsoleView.Color.PATH_SELECTED_BG
+                    ) 
+                    : ConsoleView.Color.PATH_UNSELECTED_BG);
                 
                 // int currentCursorTopPosition = Console.CursorTop;
                 // int currentCursorLeftPosition = Console.CursorLeft;
@@ -76,9 +81,39 @@ namespace Q1FileManager.View
             FillEmpty(1);
         }
 
-        public FileSystemInfo GetCurrentPath()
+        public FileSystemInfo GetCurrentFile()
         {
-            return _fileList[_activeFile];
+            var curFile = _fileList[_activeFile];
+            return curFile;
+        }
+        
+        public FileSystemInfo GetCurrentDir()
+        {
+            return new DirectoryInfo(_root);
+        }
+
+        public void RefrashFileList()
+        {
+            if (!Directory.Exists(_root))
+            {
+                var newRoot = _root;
+                while (newRoot != null)
+                {
+                    newRoot = Path.GetPathRoot(newRoot);
+                    if (Directory.Exists(newRoot))
+                    {
+                        ChangePath(newRoot);
+                        return;
+                    }
+                }
+                throw new ApplicationException("Ошибка в определении пути: перезапустите программу");
+            }
+            _fileList = new LsCommand().Exec(_root);
+            if (_fileList.Count - 1 < _activeFile)
+            {
+                _activeFile = 0;
+            }
+            Show();
         }
 
         public void ChangePath(string path)
@@ -152,6 +187,7 @@ namespace Q1FileManager.View
         public void ToggleActive()
         {
             Active = !_active;
+            Show();
         }
         
         public void ExecPath()

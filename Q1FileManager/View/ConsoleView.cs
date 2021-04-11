@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.VisualBasic;
 using Q1FileManager.Command;
 
 namespace Q1FileManager.View
@@ -40,7 +43,8 @@ namespace Q1FileManager.View
             BTN_ACTIVE_FONT = ConsoleColor.Black,
             
             // Файловая система
-            PATH_SELECTED_BG = ConsoleColor.Gray,
+            PATH_ACTIVE_SELECTED_BG = ConsoleColor.Gray,
+            PATH_SELECTED_BG = ConsoleColor.DarkGray,
             PATH_UNSELECTED_BG = ConsoleColor.Black,
             FILE_FONT = ConsoleColor.DarkCyan,
             DIR_FONT = ConsoleColor.DarkGreen,
@@ -61,8 +65,8 @@ namespace Q1FileManager.View
             _leftPanel.Active = true;
             _rightPanel.Active = false;
 
-            _leftPanel.ChangePath("N:\\defa");
-            _rightPanel.ChangePath(null);
+            _leftPanel.ChangePath("N:\\tests");
+            _rightPanel.ChangePath("N:\\tests");
             _infoPanel.Show();
             _leftPanel.Show();
             _rightPanel.Show();
@@ -72,7 +76,7 @@ namespace Q1FileManager.View
         protected void RefrashCurentInfo()
         {
             var _activePanel = _leftPanel.Active ? _leftPanel : _rightPanel;
-            _infoPanel.SetFile(_activePanel.GetCurrentPath().FullName);
+            _infoPanel.SetFile(_activePanel.GetCurrentFile().FullName);
         }
 
         protected ConsoleFilePanel GetActiveFilePanel()
@@ -155,6 +159,27 @@ namespace Q1FileManager.View
                         case ConsoleKey.Enter:
                             _activePanel.ExecPath();
                             break;
+                        case ConsoleKey.F2:
+                            CommandRename();
+                            break;
+                        case ConsoleKey.F3:
+                            _activePanel.RefrashFileList();
+                            break;
+                        case ConsoleKey.F4:
+                            CommandChangePath();
+                            break;
+                        case ConsoleKey.F5:
+                            CommandCopy();
+                            break;
+                        case ConsoleKey.F6: 
+                            CommandMove();
+                            break;
+                        case ConsoleKey.F7:
+                            CommandMakeDir();
+                            break;
+                        case ConsoleKey.F8:
+                            CommandRemove();
+                            break;
                         case ConsoleKey.F10:
                             exit = true;
                             break;
@@ -167,5 +192,113 @@ namespace Q1FileManager.View
                 }
             }
         }
+
+        /// <summary>
+        /// Переименование файла/папки
+        /// </summary>
+        protected void CommandRename()
+        {
+            PrintCommand("Введите новое имя:");
+            
+            var _activePanel = GetActiveFilePanel();
+            var newName = Console.ReadLine();
+
+            var invaludChars = Path.GetInvalidFileNameChars().ToList();
+            
+            invaludChars.Add(Path.PathSeparator);
+
+            foreach (var invaludChar in invaludChars)
+            {
+                if (newName.Contains(invaludChar))
+                {
+                    throw new ArgumentException("Недопустимая операция: Запрещенные символы в имени");
+                }
+            }
+
+            var activeFile = _activePanel.GetCurrentFile();
+            
+            var newPath = Path.Combine(Path.GetDirectoryName(activeFile.FullName), newName);
+            FileSystem.Rename(activeFile.FullName, newPath);
+            
+            _activePanel.RefrashFileList();
+        }
+
+        /// <summary>
+        /// Создание категории
+        /// </summary>
+        protected void CommandMakeDir()
+        {
+            PrintCommand("Введите имя каталога:");
+            
+            var _activePanel = GetActiveFilePanel();
+            var command = new MkDirCommand();
+            var newDir = Console.ReadLine();
+            
+            command.Exec(Path.Combine(_activePanel.GetCurrentDir().FullName, newDir));
+            _activePanel.RefrashFileList();
+        }
+        
+        /// <summary>
+        /// Переход по новому пути, в том числе смена диска
+        /// </summary>
+        protected void CommandChangePath()
+        {
+            PrintCommand("Введите путь:");
+            
+            var _activePanel = GetActiveFilePanel();
+            var newPath = Console.ReadLine();
+            
+            _activePanel.ChangePath(newPath);
+        }
+
+        /// <summary>
+        /// Копирование файлов и папок
+        /// </summary>
+        protected void CommandCopy()
+        {
+            var defaultPath = GetPasiveFilePanel().GetCurrentDir().FullName;
+            PrintCommand($"Введите полный путь для копирования (по умл. {defaultPath}):");
+            var _activePanel = GetActiveFilePanel();
+            var newPath = Console.ReadLine();
+
+            var command = new CopyCommand();
+            newPath = newPath == String.Empty || newPath == null ? defaultPath : newPath;
+            command.Exec(_activePanel.GetCurrentFile().FullName, newPath, AcceptMessage);
+
+            _leftPanel.RefrashFileList();
+            _rightPanel.RefrashFileList();
+        }
+        
+        protected void CommandMove()
+        {
+            var defaultPath = GetPasiveFilePanel().GetCurrentDir().FullName;
+            PrintCommand($"Введите полный путь для перемещения (по умл. {defaultPath}):");
+            var _activePanel = GetActiveFilePanel();
+            var newPath = Console.ReadLine();
+
+            var command = new MoveCommand();
+            newPath = newPath == String.Empty || newPath == null
+                ? GetPasiveFilePanel().GetCurrentDir().FullName
+                : newPath;
+            command.Exec(_activePanel.GetCurrentFile().FullName, newPath, AcceptMessage);
+            
+            _leftPanel.RefrashFileList();
+            _rightPanel.RefrashFileList();
+        }
+
+        protected void CommandRemove()
+        {
+            var _activePanel = GetActiveFilePanel();
+            var command = new RmCommand();
+            command.Exec(_activePanel.GetCurrentFile().FullName, AcceptMessage);
+            _activePanel.RefrashFileList();
+        }
+
+        public bool AcceptMessage(string text, string answer)
+        {
+            PrintCommand(text);
+            return Console.ReadLine().ToUpper() == answer.ToUpper();
+        }
+        
     }
 }
