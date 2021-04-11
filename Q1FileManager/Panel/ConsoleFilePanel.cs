@@ -115,9 +115,9 @@ namespace Q1FileManager.View
                     {
                         return newRoot;
                     }
-
-                    return Directory.GetCurrentDirectory();
                 }
+
+                return Directory.GetCurrentDirectory();
             }
 
             return path;
