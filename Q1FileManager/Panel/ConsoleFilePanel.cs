@@ -239,6 +239,7 @@ namespace Q1FileManager.View
                 }
                 catch (Exception e)
                 {
+                    Logger.LogError(e);
                 }
             }
         }

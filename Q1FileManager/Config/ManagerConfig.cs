@@ -26,8 +26,9 @@ namespace Q1FileManager.Config
                 var appSettings = ConfigurationManager.AppSettings;  
                 return appSettings[key];  
             }  
-            catch (ConfigurationErrorsException)
+            catch (ConfigurationErrorsException e)
             {
+                Logger.LogError(e);
                 throw new ConfigurationErrorsException("Системный сбой в получении данных конфигурации");
             }
         } 
@@ -49,8 +50,9 @@ namespace Q1FileManager.Config
                 configFile.Save(ConfigurationSaveMode.Modified);  
                 ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);  
             }  
-            catch (ConfigurationErrorsException)
+            catch (ConfigurationErrorsException e)
             {
+                Logger.LogError(e);
                 throw new ConfigurationErrorsException("Системный сбой при записи данных конфигурации");
             }  
         }  

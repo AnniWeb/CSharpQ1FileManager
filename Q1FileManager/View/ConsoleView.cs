@@ -187,7 +187,7 @@ namespace Q1FileManager.View
                 catch (Exception e)
                 {
                     _infoPanel.SetMsg(e.Message, Color.MSG_ERROR);
-                    // throw e;
+                    Logger.LogError(e);
                 }
             }
         }
