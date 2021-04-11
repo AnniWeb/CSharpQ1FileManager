@@ -31,22 +31,22 @@ namespace Q1FileManager.View
             initFrame(width, height, left,  top);
             _fileList = new List<FileSystemInfo>();
             _pageCount = height - 3;
+            
+            _colorBg = (ConsoleColor) ConsoleView.Color.PANEL_F_BG;
+            _colorFont = (ConsoleColor) ConsoleView.Color.PANEL_F_FONT;
         }
         
         public void Show()
         {
-            Console.BackgroundColor = (ConsoleColor) ConsoleView.Color.PANEL_F_BG;
-            Console.ForegroundColor = (ConsoleColor) ConsoleView.Color.PANEL_F_FONT;
-            
-            Clear();
+            ResetColors();
             ShowFrame();
-            
-            Console.BackgroundColor = (ConsoleColor) ConsoleView.Color.PANEL_F_BG;
-            Console.ForegroundColor = (ConsoleColor) ConsoleView.Color.PANEL_F_FONT;
+            ResetColors();
 
             var offset = _activeFile > 0 ? (_activeFile / _pageCount) * _pageCount : 0;
             var count = 0;
             var page = _fileList.GetRange(offset, offset + _pageCount > _fileList.Count ? _fileList.Count - offset : _pageCount);
+            
+            int blockLength = _widthPanel - 2;
             
             foreach (var path in page)
             {
@@ -57,13 +57,14 @@ namespace Q1FileManager.View
                 Console.BackgroundColor = (ConsoleColor) (offset + count == _activeFile 
                     ? ConsoleView.Color.PATH_SELECTED_BG : ConsoleView.Color.PATH_UNSELECTED_BG);
                 
-                int currentCursorTopPosition = Console.CursorTop;
-                int currentCursorLeftPosition = Console.CursorLeft;
+                // int currentCursorTopPosition = Console.CursorTop;
+                // int currentCursorLeftPosition = Console.CursorLeft;
+                var pathString = path.FullName == _root ? ".." : $"{path.Name}";
+                var textLength = pathString.Length > blockLength ? blockLength : pathString.Length;
                 
-                PrintRow(path.FullName == _root ? ".." : $"{path.Name}");
-                    
+                PrintRow(pathString.Length > blockLength ? pathString.Substring(0, textLength - 3) + "..." : pathString);
                 
-                Console.SetCursorPosition(currentCursorLeftPosition + _widthPanel / 2, currentCursorTopPosition);
+                // Console.SetCursorPosition(currentCursorLeftPosition + _widthPanel / 2, currentCursorTopPosition);
                 
                 count++;
                 if (count > _pageCount)
@@ -71,6 +72,8 @@ namespace Q1FileManager.View
                     break;
                 }
             }
+
+            FillEmpty(1);
         }
 
         public FileSystemInfo GetCurrentPath()
@@ -80,6 +83,11 @@ namespace Q1FileManager.View
 
         public void ChangePath(string path)
         {
+            if (path != null && !Directory.Exists(path))
+            {
+                throw new ArgumentException($"Не доступный путь: {path}");
+            }
+            
             if (path != null && path == _root)
             {
                 path = new DirectoryInfo(_root).Parent?.FullName ?? _root;
@@ -92,6 +100,10 @@ namespace Q1FileManager.View
                 _fileList.RemoveAt(0);
             }
             _activeFile = 0;
+            if (_active)
+            {
+                Directory.SetCurrentDirectory(path);
+            }
             Show();
         }
 

@@ -20,6 +20,9 @@ namespace Q1FileManager.View
             FILE_INFO,
             MESSAGE
         }
+
+        protected ConsoleColor _colorBg; 
+        protected ConsoleColor _colorFont; 
         
         /// <summary>
         /// Формирует размеры рамки панели
@@ -88,8 +91,27 @@ namespace Q1FileManager.View
             int blockLength = _widthPanel - 2;
             for (int i = 0; i < text.Length; i += blockLength )
             {
-                Console.Write(text.Substring(i, text.Length - i > blockLength ? blockLength : text.Length - i));
+                var textLength = text.Length - i > blockLength ? blockLength : text.Length - i;
+                var space = textLength == blockLength ? String.Empty : new String(' ', blockLength - textLength);
+                Console.Write(text.Substring(i, textLength) + space);
                 Console.SetCursorPosition(_left + 1, Console.CursorTop + 1);
+            }
+        }
+        
+        protected void ResetColors()
+        {
+            Console.BackgroundColor = _colorBg;
+            Console.ForegroundColor = _colorFont;
+        }
+
+        protected void FillEmpty(int frameWidth)
+        {
+            ResetColors();
+            for (int i = Console.CursorTop; i < _top + _heightPanel - frameWidth; i++)
+            {
+                string space = new String(' ', _widthPanel - frameWidth * 2);
+                Console.SetCursorPosition(_left + frameWidth, i);
+                Console.Write(space);
             }
         }
     }

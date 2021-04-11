@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Q1FileManager.Command;
 
 namespace Q1FileManager.View
 {
@@ -78,11 +79,34 @@ namespace Q1FileManager.View
         {
             return _leftPanel.Active ? _leftPanel : _rightPanel;
         }
+        
+        protected ConsoleFilePanel GetPasiveFilePanel()
+        {
+            return !_leftPanel.Active ? _leftPanel : _rightPanel;
+        }
 
         protected void ToggleActiveFilePanel()
         {
             _leftPanel.ToggleActive();
             _rightPanel.ToggleActive();
+        }
+
+        protected void PrintCommand(string text)
+        {
+            Console.SetCursorPosition(1, 38);
+            Console.Write(text);
+        }
+
+        protected void ClearCommand()
+        {
+            Console.SetCursorPosition(1, 38);
+            
+            for (int i = 38; i < 40; i++)
+            {
+                string space = new String(' ', 120);
+                Console.SetCursorPosition(1, i);
+                Console.Write(space);
+            }
         }
 
         public void Explore()
@@ -94,6 +118,7 @@ namespace Q1FileManager.View
                 var _activePanel = GetActiveFilePanel();
                 try
                 {
+                    ClearCommand();
                     ConsoleKeyInfo userKey = Console.ReadKey(true);
                     _btnPanel.SetKey(userKey.Key);
 
