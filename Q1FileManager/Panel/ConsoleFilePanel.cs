@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Q1FileManager.Command;
+using Q1FileManager.Config;
 
 namespace Q1FileManager.View
 {
     public class ConsoleFilePanel : AConsolePanel, IFilePanel
     {
+        private string _configNamePath;
         private bool _active = false;
 
         public bool Active
@@ -18,6 +20,7 @@ namespace Q1FileManager.View
             {
                 // _activeFile = 0;
                 _active = value;
+                Show();
             }
         }
         
@@ -26,7 +29,7 @@ namespace Q1FileManager.View
         private int _activeFile = 0;
         private int _pageCount = 0;
 
-        public ConsoleFilePanel(int width, int height, int left, int top)
+        public ConsoleFilePanel(int width, int height, int left, int top, string configNamePath = null)
         {
             initFrame(width, height, left,  top);
             _fileList = new List<FileSystemInfo>();
@@ -34,6 +37,18 @@ namespace Q1FileManager.View
             
             _colorBg = (ConsoleColor) ConsoleView.Color.PANEL_F_BG;
             _colorFont = (ConsoleColor) ConsoleView.Color.PANEL_F_FONT;
+            
+            if (configNamePath != null)
+            {
+                _configNamePath = configNamePath;
+                _root = GetCorrectRoot(ManagerConfig.ReadOrCreateSetting(_configNamePath, () => Directory.GetCurrentDirectory()));
+                _fileList = new LsCommand().Exec(_root);
+            }
+            else
+            {
+                _root = Directory.GetCurrentDirectory();
+                _fileList = new LsCommand().Exec(_root);
+            }
         }
         
         public void Show()
@@ -62,14 +77,10 @@ namespace Q1FileManager.View
                     ) 
                     : ConsoleView.Color.PATH_UNSELECTED_BG);
                 
-                // int currentCursorTopPosition = Console.CursorTop;
-                // int currentCursorLeftPosition = Console.CursorLeft;
                 var pathString = path.FullName == _root ? ".." : $"{path.Name}";
                 var textLength = pathString.Length > blockLength ? blockLength : pathString.Length;
                 
                 PrintRow(pathString.Length > blockLength ? pathString.Substring(0, textLength - 3) + "..." : pathString);
-                
-                // Console.SetCursorPosition(currentCursorLeftPosition + _widthPanel / 2, currentCursorTopPosition);
                 
                 count++;
                 if (count > _pageCount)
@@ -90,6 +101,26 @@ namespace Q1FileManager.View
         public FileSystemInfo GetCurrentDir()
         {
             return new DirectoryInfo(_root);
+        }
+
+        protected string GetCorrectRoot(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                var newRoot = _root;
+                while (newRoot != null)
+                {
+                    newRoot = Path.GetPathRoot(newRoot);
+                    if (Directory.Exists(newRoot))
+                    {
+                        return newRoot;
+                    }
+
+                    return Directory.GetCurrentDirectory();
+                }
+            }
+
+            return path;
         }
 
         public void RefrashFileList()
@@ -129,6 +160,7 @@ namespace Q1FileManager.View
             }
             _fileList = new LsCommand().Exec(path);
             _root =  _fileList.First().FullName;
+            ManagerConfig.AddUpdateAppSettings(_configNamePath, _root);
 
             if (new DirectoryInfo(_root).Parent == null)
             {

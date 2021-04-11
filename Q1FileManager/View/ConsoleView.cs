@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.VisualBasic;
 using Q1FileManager.Command;
+using Q1FileManager.Config;
 
 namespace Q1FileManager.View
 {
@@ -58,15 +59,13 @@ namespace Q1FileManager.View
             Console.SetBufferSize(120, 41);
 
             _infoPanel = new ConsoleInfoPanel(120, 10, 0, 0);
-            _leftPanel = new ConsoleFilePanel(60, 25, 0, 10);
-            _rightPanel = new ConsoleFilePanel(60, 25, 60, 10);
+            _leftPanel = new ConsoleFilePanel(60, 25, 0, 10, "pathLeftPanel");
+            _rightPanel = new ConsoleFilePanel(60, 25, 60, 10, "pathRightPanel");
             _btnPanel = new ConsoleButtonPanel(120, 3, 0, 35);
 
             _leftPanel.Active = true;
             _rightPanel.Active = false;
-
-            _leftPanel.ChangePath("N:\\tests");
-            _rightPanel.ChangePath("N:\\tests");
+            
             _infoPanel.Show();
             _leftPanel.Show();
             _rightPanel.Show();
